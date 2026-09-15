@@ -21,10 +21,19 @@ function createBot() {
 
   bot.on('spawn', () => {
     console.log('¡ÉXITO: El bot ha entrado al servidor!');
+
     setTimeout(() => {
       bot.chat('/register BotClave123 BotClave123');
       bot.chat('/login BotClave123');
+      bot.chat('/gamemode spectator Bot24Siete');
     }, 2500);
+
+    // Anti-AFK: gira la cámara cada 30 segundos
+    setInterval(() => {
+      const yaw = Math.random() * Math.PI * 2;
+      const pitch = (Math.random() - 0.5) * 0.5;
+      bot.look(yaw, pitch, true);
+    }, 30000);
   });
 
   bot.on('end', (reason) => {
