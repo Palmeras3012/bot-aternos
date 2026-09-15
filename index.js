@@ -11,14 +11,14 @@ http.createServer((req, res) => {
 function createBot() {
   console.log('Conectando bot a Aternos...');
 
-  const bot = mineflayer.createBot({
-    host: config.ip,
-    port: config.port,
-    username: config.username,
-    version: "1.21.9",
-    auth: 'offline',
-    hideErrors: false
-  });
+const bot = mineflayer.createBot({
+  host: config.ip,
+  port: config.port,
+  username: config.username,
+  version: "1.21.9", // ⚠️ cámbialo por la versión real de tu server
+  auth: 'offline',    // quítalo si tu server NO es crackeado
+  hideErrors: false
+});
 
   bot.on('spawn', () => {
     console.log('¡ÉXITO: El bot ha entrado al servidor!');
