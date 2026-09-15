@@ -15,7 +15,7 @@ function createBot() {
     host: config.ip,
     port: config.port,
     username: config.username,
-    version: "26.2",
+    version: "1.21.9",
     auth: 'offline',
     hideErrors: false
   });
