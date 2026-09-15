@@ -11,23 +11,18 @@ http.createServer((req, res) => {
 function createBot() {
   console.log('Conectando bot a Aternos...');
 
-  const botOptions = {
+  const bot = mineflayer.createBot({
     host: config.ip,
+    port: config.port,
     username: config.username,
-    version: "1.21.4", // Compatible con PaperMC 26.2 / 1.21.4
+    version: "26.2",
+    auth: 'offline',
     hideErrors: false
-  };
-
-  // Solo agregar puerto si es un puerto no estándar específico
-  if (config.port && config.port !== 25565) {
-    botOptions.port = config.port;
-  }
-
-  const bot = mineflayer.createBot(botOptions);
+  });
 
   bot.on('spawn', () => {
     console.log('¡ÉXITO: El bot ha entrado al servidor!');
-    
+
     // Auto-login para superar AuthMe
     setTimeout(() => {
       bot.chat('/register BotClave123 BotClave123');
