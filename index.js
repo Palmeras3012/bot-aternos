@@ -9,17 +9,19 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 3000);
 
 function createBot() {
+  console.log('Iniciando intento de conexión...');
+  
   const bot = mineflayer.createBot({
     host: config.ip,
     port: config.port,
     username: config.username,
-    version: "1.21" // Fijamos la versión exacta por AuthMe/ViaVersion
+    version: "1.21.4" // Coincide exactamente con tu servidor PaperMC
   });
 
   bot.on('spawn', () => {
-    console.log('El bot ha entrado al servidor.');
+    console.log('¡El bot ha entrado con éxito al servidor!');
     
-    // Auto-login para superar la barrera de AuthMe
+    // Auto-login para AuthMe
     setTimeout(() => {
       bot.chat('/register BotClave123 BotClave123');
       bot.chat('/login BotClave123');
@@ -32,7 +34,7 @@ function createBot() {
   });
 
   bot.on('error', err => {
-    console.log('Error del bot:', err);
+    console.log('Error en la conexión del bot:', err);
   });
 }
 
