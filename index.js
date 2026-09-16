@@ -23,9 +23,8 @@ function createBot() {
     console.log('¡ÉXITO: El bot ha entrado al servidor!');
 
     setTimeout(() => {
-      bot.chat('/register BotClave123 BotClave123');
-      bot.chat('/login BotClave123');
-      bot.chat('/gamemode spectator Bot24Siete');
+      bot.chat('/register ILOVECULOS ILOVECULOS');
+      bot.chat('/login ILOVECULOS');
     }, 2500);
 
     // Anti-AFK: gira la cámara cada 30 segundos
