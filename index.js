@@ -2,41 +2,40 @@ const http = require('http');
 const mineflayer = require('mineflayer');
 const config = require('./config.json');
 
-// Servidor HTTP obligatorio para mantener vivo el servicio en Render
+// Servidor HTTP falso para mantener el servicio activo en Render
 http.createServer((req, res) => {
   res.writeHead(200, { 'Content-Type': 'text/plain' });
   res.end('Bot 24/7 Active\n');
 }).listen(process.env.PORT || 3000);
 
 function createBot() {
-  console.log('Intentando conectar al servidor de Minecraft...');
+  console.log('Conectando bot al servidor Java de Play Hosting...');
 
   const bot = mineflayer.createBot({
     host: config.ip,
     port: config.port,
     username: config.username,
-    version: "1.21", // Forzamos la versión exacta para que ViaVersion lo acepte sin romper el socket
+    version: "1.21", // Forzamos versión compatible con ViaVersion
     auth: 'offline',
     checkTimeoutInterval: 60000
   });
 
   bot.once('spawn', () => {
-    console.log('¡ÉXITO: El bot se conectó y entró al servidor correctamente!');
+    console.log('¡ÉXITO: El bot entró al servidor!');
 
-    // Esperar a que cargue el mundo antes de loguearse
+    // Autenticación segura
     setTimeout(() => {
       try {
         bot.chat('/register ILOVECULOS ILOVECULOS');
         bot.chat('/login ILOVECULOS');
-        console.log('Comandos de autenticación enviados.');
       } catch (e) {
-        console.log('Error al enviar comandos:', e.message);
+        console.log('Error enviando comandos:', e.message);
       }
     }, 4000);
   });
 
-  // Mantener la sesión activa con micro-movimientos de cabeza cada 60 segundos
-  bot.on('spawn', () => {
+  // Anti-AFK suave por intervalos de movimiento de cabeza
+  bot.once('spawn', () => {
     const afkInterval = setInterval(() => {
       if (bot.entity) {
         const yaw = Math.random() * Math.PI * 2;
@@ -50,12 +49,12 @@ function createBot() {
   });
 
   bot.on('end', (reason) => {
-    console.log('Bot desconectado. Razón: ' + reason + '. Reconectando en 15s...');
+    console.log('Bot desconectado (Razón: ' + reason + '). Reconectando en 15s...');
     setTimeout(createBot, 15000);
   });
 
   bot.on('error', (err) => {
-    console.log('Error detectado en el socket:', err.message || err);
+    console.log('Error en el socket:', err.message || err);
   });
 }
 
