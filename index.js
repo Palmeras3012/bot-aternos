@@ -2,19 +2,20 @@ const http = require('http');
 const mineflayer = require('mineflayer');
 const config = require('./config.json');
 
+// Servidor HTTP para evitar que Render suspenda el servicio por inactividad
 http.createServer((req, res) => {
-  res.write("Bot de Falix activo 24/7");
+  res.write("Bot activo 24/7");
   res.end();
 }).listen(process.env.PORT || 3000);
 
 function createBot() {
-  console.log('Conectando bot a Falix...');
+  console.log('Conectando bot al servidor...');
 
   const bot = mineflayer.createBot({
     host: config.ip,
     port: config.port,
     username: config.username,
-    version: "1.21.11",
+    version: false, // Detecta la versión automáticamente
     auth: 'offline',
     hideErrors: false
   });
@@ -23,8 +24,12 @@ function createBot() {
     console.log('¡ÉXITO: El bot ha entrado al servidor!');
 
     setTimeout(() => {
-      bot.chat('/register ILOVECULOS ILOVECULOS');
-      bot.chat('/login ILOVECULOS');
+      try {
+        bot.chat('/register ILOVECULOS ILOVECULOS');
+        bot.chat('/login ILOVECULOS');
+      } catch (e) {
+        console.log('Error enviando comandos de auth:', e.message);
+      }
     }, 2500);
 
     // Anti-AFK: gira la cámara cada 30 segundos
