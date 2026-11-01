@@ -2,9 +2,8 @@ const http = require('http');
 const mineflayer = require('mineflayer');
 const config = require('./config.json');
 
-// Servidor HTTP para evitar que Render suspenda el servicio por inactividad
 http.createServer((req, res) => {
-  res.write("Bot activo 24/7");
+  res.write("Bot 24/7 Active");
   res.end();
 }).listen(process.env.PORT || 3000);
 
@@ -15,39 +14,31 @@ function createBot() {
     host: config.ip,
     port: config.port,
     username: config.username,
-    version: false, // Detecta la versión automáticamente
+    version: false,
     auth: 'offline',
-    hideErrors: false
+    checkTimeoutInterval: 60000,
+    physicsEnabled: false // Esto evita que mande paquetes de movimiento ilegales al anticheat
   });
 
-  bot.on('spawn', () => {
-    console.log('¡ÉXITO: El bot ha entrado al servidor!');
+  bot.once('spawn', () => {
+    console.log('¡ÉXITO: El bot entró al servidor sin alterar la física!');
 
     setTimeout(() => {
       try {
         bot.chat('/register ILOVECULOS ILOVECULOS');
         bot.chat('/login ILOVECULOS');
       } catch (e) {
-        console.log('Error enviando comandos de auth:', e.message);
+        console.log('Error enviando comandos:', e.message);
       }
-    }, 2500);
-
-    // Anti-AFK: gira la cámara cada 30 segundos
-    setInterval(() => {
-      const yaw = Math.random() * Math.PI * 2;
-      const pitch = (Math.random() - 0.5) * 0.5;
-      bot.look(yaw, pitch, true);
-    }, 30000);
+    }, 3000);
   });
 
   bot.on('end', (reason) => {
-    console.log('Bot desconectado (razón: ' + reason + '). Reintentando en 15s...');
+    console.log('Bot desconectado (Razón: ' + reason + '). Reintentando en 15s...');
     setTimeout(createBot, 15000);
   });
 
-  bot.on('error', (err) => {
-    console.log('Error de conexión:', err.message || err);
-  });
+  bot.on('error', (err) => console.log('Error:', err.message || err));
 }
 
 createBot();
