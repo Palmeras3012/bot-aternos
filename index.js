@@ -16,13 +16,13 @@ function createBot() {
     username: config.username,
     version: false,
     auth: 'offline',
-    checkTimeoutInterval: 60000,
-    physicsEnabled: false // Esto evita que mande paquetes de movimiento ilegales al anticheat
+    checkTimeoutInterval: 60000
   });
 
   bot.once('spawn', () => {
-    console.log('¡ÉXITO: El bot entró al servidor sin alterar la física!');
+    console.log('¡ÉXITO: El bot entró al servidor!');
 
+    // Autenticación con retraso seguro
     setTimeout(() => {
       try {
         bot.chat('/register ILOVECULOS ILOVECULOS');
@@ -31,6 +31,18 @@ function createBot() {
         console.log('Error enviando comandos:', e.message);
       }
     }, 3000);
+
+    // Anti-AFK compatible con GrimAC y Play Hosting:
+    // Alterna agacharse y levantarse (sneak) cada 45 segundos.
+    // Esto mantiene el socket de red transmitiendo paquetes 100% válidos.
+    setInterval(() => {
+      if (bot.entity) {
+        bot.setControlState('sneak', true);
+        setTimeout(() => {
+          bot.setControlState('sneak', false);
+        }, 1000);
+      }
+    }, 45000);
   });
 
   bot.on('end', (reason) => {
@@ -38,7 +50,7 @@ function createBot() {
     setTimeout(createBot, 15000);
   });
 
-  bot.on('error', (err) => console.log('Error:', err.message || err));
+  bot.on('error', (err) => console.log('Error de conexión:', err.message || err));
 }
 
 createBot();
