@@ -1,5 +1,5 @@
 const http = require('http');
-const mineflayer = require('mineflayer');
+const mineflayer = /^4/.test(require('mineflayer/package.json').version) ? require('mineflayer') : require('mineflayer');
 const config = require('./config.json');
 
 http.createServer((req, res) => {
@@ -8,7 +8,7 @@ http.createServer((req, res) => {
 }).listen(process.env.PORT || 3000);
 
 function createBot() {
-  console.log('Conectando bot al servidor...');
+  console.log('Iniciando conexión segura con el servidor...');
 
   const bot = mineflayer.createBot({
     host: config.ip,
@@ -16,41 +16,41 @@ function createBot() {
     username: config.username,
     version: false,
     auth: 'offline',
-    checkTimeoutInterval: 60000
+    // Desactivamos por completo el flujo de paquetes automáticos en el arranque
+    defaultChatHandlers: false,
+    skipValidation: true
+  });
+
+  // Interceptar los datos de conexión para evitar que mande paquetes inválidos al spawnear
+  bot._client.on('packet', (data, metadata) => {
+    // Si el servidor pide confirmación de posición (Position Look), respondemos de inmediato con la misma
+    if (metadata.name === 'position' || metadata.name === 'player_position_and_look') {
+      bot._client.write('teleport_confirm', { teleportId: data.teleportId });
+    }
   });
 
   bot.once('spawn', () => {
-    console.log('¡ÉXITO: El bot entró al servidor!');
+    console.log('¡ÉXITO ABSOLUTO: El bot se plantó en el servidor sin errores de paquetes!');
 
-    // Autenticación con retraso seguro
+    // Login tras asegurar la estabilidad de la conexión
     setTimeout(() => {
       try {
         bot.chat('/register ILOVECULOS ILOVECULOS');
         bot.chat('/login ILOVECULOS');
       } catch (e) {
-        console.log('Error enviando comandos:', e.message);
+        console.log('Error en comandos:', e.message);
       }
-    }, 3000);
-
-    // Anti-AFK compatible con GrimAC y Play Hosting:
-    // Alterna agacharse y levantarse (sneak) cada 45 segundos.
-    // Esto mantiene el socket de red transmitiendo paquetes 100% válidos.
-    setInterval(() => {
-      if (bot.entity) {
-        bot.setControlState('sneak', true);
-        setTimeout(() => {
-          bot.setControlState('sneak', false);
-        }, 1000);
-      }
-    }, 45000);
+    }, 4000);
   });
 
   bot.on('end', (reason) => {
-    console.log('Bot desconectado (Razón: ' + reason + '). Reintentando en 15s...');
+    console.log('Desconectado. Razón: ' + reason + '. Reconectando en 15s...');
     setTimeout(createBot, 15000);
   });
 
-  bot.on('error', (err) => console.log('Error de conexión:', err.message || err));
+  bot.on('error', (err) => {
+    console.log('Error crítico en socket:', err.message || err);
+  });
 }
 
 createBot();
